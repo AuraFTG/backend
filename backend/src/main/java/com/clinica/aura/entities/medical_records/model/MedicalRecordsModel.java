@@ -2,6 +2,7 @@ package com.clinica.aura.entities.medical_records.model;
 
 import com.clinica.aura.entities.patient.model.PatientModel;
 import com.clinica.aura.entities.person.model.PersonModel;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
