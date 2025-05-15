@@ -94,18 +94,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new DisabledException("Usuario suspendido hasta: " + userEntity.getSuspensionEnd());
         }
 
-//        if (!userDetails.isEnabled()) {
-//            throw new DisabledException("Usuario suspendido hasta: " +
-//                    ((UserModel) userDetails).getSuspensionEnd());
-//        }
-//        if (!userDetails.isAccountNonLocked()) {
-//            throw new LockedException("Cuenta bloqueada");
-//        }
-
-//        if (userDetails == null) {
-//            throw new BadCredentialsException("Usuario no encontrado");
-//        }
-
         if (!passwordEncoder.matches(password, userDetails.getPassword())) {
             throw new BadCredentialsException("Contraseña incorrecta");
         }
@@ -127,6 +115,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return UserMeResponseDto.builder()
                 .id(user.getId())
                 .email(user.getEmail())
+                .name(user.getPerson().getName())
+                .lastName(user.getPerson().getLastName())
+                .birthDate(user.getPerson().getBirthDate())
+                .dni(user.getPerson().getDni())
                 .roles(user.getRoles().stream()
                         .map(role -> role.getEnumRole().name())
                         .toList())

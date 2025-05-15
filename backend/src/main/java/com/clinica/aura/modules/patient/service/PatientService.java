@@ -234,7 +234,7 @@ public class PatientService {
      */
     public PaginatedResponse<PatientResponseDto> getAllPatients(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<PatientModel> patientsPage = patientRepository.findAll(pageable);
+        Page<PatientModel> patientsPage = patientRepository.findByEliminadoFalse(pageable);
 
         List<PatientResponseDto> patientResponseDtos = patientsPage.getContent().stream()
                 .map(patient -> {
@@ -295,7 +295,7 @@ public class PatientService {
      * @throws PatientNotFoundException Si no se encuentra un paciente con el ID proporcionado.
      */
     public PatientResponseDto getPatientById(Long id) {
-        var patient = patientRepository.findById(id)
+        var patient = patientRepository.findByIdAndEliminadoFalse(id)
                 .orElseThrow(() -> new PatientNotFoundException("Paciente no encontrado con ID: " + id));
 
         var person = patient.getPerson();
@@ -361,7 +361,7 @@ public class PatientService {
      */
     public PatientResponseDto updatePatient(Long id, PatientRequestDto requestDto) {
 
-        var patient = patientRepository.findById(id)
+        var patient = patientRepository.findByIdAndEliminadoFalse(id)
                 .orElseThrow(() -> new PatientNotFoundException("Paciente no encontrado con ID: " + id));
 
         var person = patient.getPerson();
@@ -463,7 +463,7 @@ public class PatientService {
      * @throws PatientNotFoundException Si no se encuentra ningún paciente con el DNI especificado.
      */
     public PatientResponseDto getPatientByDni(String dni) {
-        var patient = patientRepository.findByPersonDni(dni)
+        var patient = patientRepository.findByPersonDniAndEliminadoFalse(dni)
                 .orElseThrow(() -> new PatientNotFoundException("Paciente no encontrado con DNI: " + dni));
 
         var person = patient.getPerson();
@@ -506,6 +506,29 @@ public class PatientService {
                 .build();
     }
 
+    /**
+     * Elimina un paciente de la base de datos.
+     * Este método realiza lo siguiente:
+     * <ul>
+     *     <li>Busca al paciente en la base de datos utilizando su ID.</li>
+     *     <li>Establece el campo "eliminado" del paciente como true.</li>
+     *     <li>Guarda los cambios realizados en la base de datos.</li>
+     * </ul>
+     * @param patientId ID del paciente a eliminar.
+     */
+
+    @Transactional
+    public void deletePatientById(Long patientId) {
+        PatientModel patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new PatientNotFoundException("Paciente no encontrado"));
+
+        patient.setEliminado(true);
+        patientRepository.save(patient);
+    }
+
+
+
+
 
     /**
      * Busca y devuelve una lista de pacientes que coincidan con el nombre y apellido proporcionados.
@@ -525,7 +548,7 @@ public class PatientService {
         List<PatientModel> patients = patientRepository.searchByFullName(name, sureName);
 
         if (patients.isEmpty()) {
-            throw new PatientNotFoundException("No se encontraron pacientes con el nombre: " + name);
+            throw new PatientNotFoundException("No se encontraron pacientes con el nombre: " + name + " y el apellido: " + sureName);
         }
 
         return patients.stream().map(patient -> {

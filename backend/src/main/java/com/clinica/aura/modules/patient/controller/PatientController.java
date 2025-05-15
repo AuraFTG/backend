@@ -87,6 +87,13 @@ public class PatientController {
         return ResponseEntity.ok(patientService.getPatientsByName(name,sureName));
     }
 
+    // DELETE: Borrado lógico
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deletePatient(@PathVariable Long id) {
+        patientService.deletePatientById(id);
+        return ResponseEntity.ok("Paciente borrado correctamente");
+    }
+
     @PutMapping("/{patient_id}/{school_id}")
     @Operation(summary = "Asignar escuela a paciente", description = "Asigna una escuela a un paciente, se debe ingresar el ID del paciente " +
             "en el path y en el cuerpo del request el ID de la escuela")
